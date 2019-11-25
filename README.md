@@ -6,3 +6,5 @@ Python 3.7.3
 OpenCV 4.1.1
 
 Windows 10
+
+Tutorial from : https://docs.opencv.org/master/d6/d00/tutorial_py_root.html
