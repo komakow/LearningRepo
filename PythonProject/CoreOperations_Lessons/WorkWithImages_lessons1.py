@@ -51,7 +51,7 @@ BLUE = [255, 0, 0]
 replicate = cv.copyMakeBorder(img,10,10,10,10,cv.BORDER_REPLICATE)
 reflect = cv.copyMakeBorder(img,10,10,10,10,cv.BORDER_REFLECT)
 reflect101 = cv.copyMakeBorder(img,10,10,10,10,cv.BORDER_REFLECT_101)
-wrap = cv.copyMakeBorder(img,50,50,50,50,cv.BORDER_WRAP)
+wrap = cv.copyMakeBorder(img,50,50,10,10,cv.BORDER_WRAP)
 constant = cv.copyMakeBorder(img,50,10,10,10,cv.BORDER_CONSTANT, value=BLUE)
 
 # plt.subplot(231),plt.imshow(img,'gray'),plt.title('ORIGINAL')
