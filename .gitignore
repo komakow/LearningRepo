@@ -1,3 +1,9 @@
 
 *.o
 *.su
+*.log
+*.index
+*.xml
+FreeRTOSLearning/.metadata/.plugins/org.eclipse.cdt.managedbuilder.core/buildState/FreeRTOS_firstStage/1444944035
+*.prefs
+FreeRTOSLearning/.metadata/.plugins/org.eclipse.cdt.managedbuilder.core/buildState/FreeRTOS_firstStage/FreeRTOS_firstStage
