@@ -1,0 +1,13 @@
+GPIODriver.c:32:13:GPIOClock	32	static
+GPIODriver.c:81:13:GPIOOTYPER	32	static
+GPIODriver.c:104:13:GPIOMODER	40	static
+GPIODriver.c:119:13:GPIOOSPEEDR	40	static
+GPIODriver.c:136:13:GPIOPUPDR	40	static
+GPIODriver.c:152:13:GPIOALTER	40	static
+GPIODriver.c:185:13:GPIOPORT	16	static
+GPIODriver.c:218:12:GPIOCheck	80	static
+GPIODriver.c:319:17:GPIOIsOutput	32	static
+GPIODriver.c:340:17:GPIOIsAlternate	32	static
+GPIODriver.c:364:5:gpioCfg	32	static
+GPIODriver.c:429:5:gpioPinSetState	24	static
+GPIODriver.c:462:5:gpioGetPinState	24	static
