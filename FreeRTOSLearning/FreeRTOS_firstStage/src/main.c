@@ -20,11 +20,17 @@ GPIOcfgType LedGreen;
 #define DiodeRed_pin            PIN14
 GPIOcfgType DiodeRed;
 
+#define Button_port           PORTA
+#define Button_pin            PIN0
+GPIOcfgType Button;
+
+
 uint32_t fjutek;
 SemaphoreHandle_t xSemaphore = NULL;
 SemaphoreHandle_t xMutex = NULL;
 TaskHandle_t xLed1;
 TaskHandle_t xLed2;
+xQueueHandle kolejka_h;
 
 static void prvSetupHardware(void);
 void vATaskFunction( void *pvParameters );
@@ -41,10 +47,8 @@ int main(void)
 	// Hardware configuration
 	prvSetupHardware();
 
-	xSemaphore = xSemaphoreCreateBinary();
-	if( xSemaphore == NULL ) while(1);
-
-	xMutex = xSemaphoreCreateMutex();
+	kolejka_h = xQueueCreate(1, sizeof(uint8_t));
+	if( kolejka_h == NULL ) while(1);
 
 	xTaskCreate( vLedTask1, "LEDTask1", 100, NULL, 1, &xLed1 );
 	xTaskCreate( vLedTask2, "LEDTask2", 100, NULL, 2, &xLed2 );
@@ -78,29 +82,35 @@ static void prvSetupHardware(void)
 	DiodeRed.speed    = medium;
 	gpioCfg(&DiodeRed);
 
+	Button.mode     = input;
+	Button.pin      = Button_pin;
+	Button.port     = Button_port;
+	Button.pull     = pullDown;
+	Button.typ      = pushPull;
+	Button.speed    = medium;
+	gpioCfg(&Button);
+
+
+
 }
 
+//pobiera wartosc buttona
 void vLedTask1( void *pvParameters )
 {
+	uint8_t stan_new = 0;
+	uint8_t stan_last = 0;
     for( ;; )
     {
-    	if(xSemaphoreTake(xMutex, 1000/portTICK_RATE_MS) == pdTRUE)
+    	eTaskState led2;
+    	led2 = eTaskGetState(xLed2);
+
+    	stan_new = gpioGetPinState(Button_port, Button_pin);
+    	if(stan_last != stan_new)
     	{
-			for(int a=0;a<1;a++)
-			{
-				gpioPinSetState(LedGreen_port, LedGreen_pin, 0);
-				for(int a=0;a<100000;a++)
-				{
-					__asm__(" NOP");
-				}
-				gpioPinSetState(LedGreen_port, LedGreen_pin, 1);
-				for(int a=0;a<100000;a++)
-				{
-					__asm__(" NOP");
-				}
-			}
-	    	xSemaphoreGive(xMutex);
+        	xQueueSend(kolejka_h, &stan_new, 0);
     	}
+    	stan_last = stan_new;
+    	//vTaskDelay(200);
     }
     vTaskDelete( NULL );
 }
@@ -108,25 +118,22 @@ void vLedTask1( void *pvParameters )
 
 void vLedTask2( void *pvParameters )
 {
+	uint8_t setOrNot = 0;
     for( ;; )
     {
-    	if(xSemaphoreTake(xMutex, 1000/portTICK_RATE_MS) ==pdTRUE)
+    	eTaskState led1;
+
+    	led1 = eTaskGetState(xLed1);
+    	if(xQueueReceive(kolejka_h,&setOrNot, 100))
     	{
-        	for(int a=0;a<8;a++)
-        	{
-        		gpioPinSetState(DiodeRed_port, DiodeRed_pin, 1);
-        		for(int a=0;a<100000;a++)
-        		{
-        			__asm__(" NOP");
-        		}
-        		gpioPinSetState(DiodeRed_port, DiodeRed_pin, 0);
-        		for(int a=0;a<100000;a++)
-        		{
-        			__asm__(" NOP");
-        		}
-        	}
-        	xSemaphoreGive(xMutex);
-        	vTaskDelay(1);
+    		if(setOrNot == 1)
+    		{
+    			gpioPinSetState(LedGreen_port, LedGreen_pin, 1);
+    		}
+    		else if(setOrNot == 0)
+    		{
+    			gpioPinSetState(LedGreen_port, LedGreen_pin, 0);
+    		}
     	}
     }
     vTaskDelete( NULL );
@@ -135,6 +142,8 @@ void vLedTask2( void *pvParameters )
 void vApplicationTickHook( void )
 {
 	fjutek++;
+
+
 	if(fjutek == (32000))
 	{
 		fjutek =0;
